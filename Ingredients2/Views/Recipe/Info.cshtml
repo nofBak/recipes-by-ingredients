@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "Info";
+}
+
+
+
+<div id="imag_page" class="jumbotron jumbotron-fluid" style="background: url('../../Content/img/tomatos.jpg');background-size:cover">
+    <div class="container text-center">
+        <h1 id="recipe_name" class="display-4" style="color:aliceblue; font-weight:bold; margin:5%"></h1>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12">
+       
+        </div>
+    </div>
+
+        @section scripts {
+            <script type="text/javascript">
+
+                $(function () {
+                    var parameters = location.search.substring(1);
+                    var temp = parameters.split("=");
+                    recipeID = unescape(temp[1]);
+                    page_init(recipeID)
+
+                });
+                function creat_recipe_page(time_to_make, rcp_description, username) {
+                    var a1 = $("<form/>");
+                        var b1 = $("<div/>").addClass("form-group").append($("<label/>").text("Time to make (minutes): " + time_to_make));
+                        var b2 = $("<div/>").addClass("form-group").append($("<label/>").text("Added by: " + username));
+                        var b3 = $("<div/>").addClass("form-group").append($("<label/>").text("Description:")).append($("<label/>").text(rcp_description));
+                        return a1.append(b1).append(b2).append(b3); 
+                }
+ 
+                function page_init(recipeID) {
+                    //load Recipes
+                    console.log(recipeID)
+                    $.ajax({
+                        url: "/recipes/" + recipeID,
+                        type: 'GET',
+                        success: function (data) {
+                            console.log(data);
+                            $("#recipe_name").text(data.name);
+                            $("#imag_page").css("background", "url(" + data.imageUrl + ")");
+                            $(".col-md-12").append(creat_recipe_page(data.timeToMake, data.description, data.addedBy))
+                        },
+                        error: function (a, b, c) {
+                            console.log(a);
+                        }
+
+                    });
+
+
+                }
+
+
+            </script>
+        }

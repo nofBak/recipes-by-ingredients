@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    .item-list {
+        height: 800px;
+        margin-left: 16px;
+        margin-right: 16px;
+        padding-top: 4px;
+        background: #ffffff;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .item-content {
+        display: flex;
+        width: calc(100% + 2px);
+        flex-direction: row;
+        background: rgba(255, 255, 255, 0);
+        margin: 0px 0px 16px 0px;
+        border: 1px solid rgba(255, 255, 255, 0);
+        position: relative;
+        left: -1px;
+    }
+
+        .item-content:last-child {
+            margin-bottom: 0px;
+        }
+
+        .item-content:hover {
+            cursor: pointer;
+            border: 1px solid rgba(34, 34, 34, 0.1);
+            background: #fafafa;
+            border-radius: 2px;
+            -webkit-transform: scale(1.008, 1.008);
+            -webkit-transition-timing-function: ease-out;
+            transition-timing-function: ease-out;
+            -webkit-transition-duration: 0.08s; /* Safari */
+            transition-duration: 0.08s;
+        }
+
+    .item {
+        padding: 16px;
+        width: 8500px;
+    }
+
+    .item-thumbnail {
+        background-image: url(http://placehold.it/100x100);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        height: auto;
+        width: 100%;      
+    }
+</style>
+<div class="jumbotron jumbotron-fluid" style="background: url('../../Content/img/meat.jpg');background-size:cover;">
+    <div class="container text-center">
+        <h1 class="display-4" style="color:aliceblue; font-weight:bold; margin:5%">Full recipe list</h1>
+    </div>
+</div>
+
+<div class="item-list list-cell">
+
+</div>
+   
+        
+
+
+
+@section scripts {
+    <script type="text/javascript">
+
+        $(function () {
+         
+           page_init()
+           
+        });
+
+        function create_list_item(rcp_name, rcp_description, rcp_id, time_to_make, username, imageUrl) {
+            var a1 = $("<div/>").addClass("item-content");
+            var b1 = $("<div/>").addClass("item item-thumbnail").css("background-image", "url("+imageUrl+")" );
+            var b2 = $("<div/>").addClass("item item-label");
+            var c1 = $("<h2/>").addClass("headline").text(rcp_name);
+            var c2 = $("<p/>").addClass("item-context").text(rcp_description);
+            var d1 = $("<a/>").attr("href", "/recipe/Info?id=" + rcp_id).text(" ...full recipe")
+            var c3 = $("<div/>").addClass("label-description");
+            var e1 = $("<p/>").text("  added by " + username);
+            var f1 = $("<i/>").addClass("fa fa-clock-o");
+            var f2 = $("<strong/>").text(" " + time_to_make + " minutes");
+            return a1.append(b1)
+                .append(b2.append(c1)
+                    .append(c2.append(d1))
+                    .append(c3.append(e1.prepend(f2).prepend(f1))));
+        }
+
+
+        function page_init() {
+            //load Recipes
+            $.ajax({
+                url: "/recipes",
+                type: 'GET',
+                success: function (data) {                 
+                    $.each(data, function (index, value) {
+                        $(".item-list").append(create_list_item(value.name, value.description, value.id, value.timeToMake, value.addedBy, value.imageUrl));
+
+                    });
+                },
+                error: function (a, b, c) {
+                    console.log(a);
+                }
+
+            });
+
+
+        }
+
+   
+    </script>
+}
+
+

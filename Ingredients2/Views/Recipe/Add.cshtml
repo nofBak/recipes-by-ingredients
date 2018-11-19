@@ -1,0 +1,275 @@
+﻿
+@{
+    ViewBag.Title = "Add";
+}
+
+
+<div class="jumbotron jumbotron-fluid" style="background: url('../../Content/img/tomatos.jpg');background-size:cover">
+    <div class="container text-center">
+        <h1 class="display-4" style="color:aliceblue; font-weight:bold; margin:5%">Add a new recipe</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <form>
+            <div class="form-group">
+                <label>Recipe name:</label>
+                <input type="text" class="form-control input-lg"  id="input_text_RecipeName">
+            </div>
+            <div class="form-group">
+                <label>Time to make ( minutes ):</label>
+                <input type="number" class="form-control input-lg" id="time_to_make" />
+            </div>
+            <div class="form-group">
+                <label>Image url:</label>
+                <input type="text" class="form-control input-lg" id="input_img_url"> 
+            </div>
+
+            <div class="form-group">
+                <label>Important ingredients list:</label>
+                <select id="select-ingredients-must" multiple="multiple" class="form-control" style="width:100%">
+                    <option></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Optional ingredients list:</label>
+                <select id="select-ingredients-optional" multiple="multiple" class="form-control" style="width:100%">
+                    <option></option>
+                </select>
+                <Button id="add-ingredient" href="#" class="btn btn-success" style="margin-top:1em">
+                    Add a new ingredient
+                    <i class="fa fa-plus"></i>
+                </Button>
+            </div>
+            <div class="form-group">
+                <label>Categories:</label>
+                <select id="select-categories" class="form-control" multiple="multiple" style="width:100%"></select>
+                <Button id="add-category" href="#" class=" btn btn-success"  style="margin-top:1em">
+                    Add a new Category
+                    <i class="fa fa-plus"></i>
+                </Button>
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea id="textarea-Description"  class="form-control input-lg" rows="10" style="resize: both;width:100%"></textarea>
+            </div>
+            <div class="form-group">
+                <Button id="button_save_recipe" class="btn btn-success" href="#" role="button">
+                    Save
+                    <i class="fa fa-floppy-o"></i>
+                </Button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="add-ingredient-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add a new ingredient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-control-label">
+                        Ingredient name:
+                        </label>
+                        <input type="text" class="form-control" id="ingredient-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label">Description:</label>
+                        <textarea class="form-control" id="ingredient-description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="add-ingredient-confirm" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="add-category-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add a new category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="category-name" class="form-control-label">Category name</label>
+                        <input type="text" class="form-control" name="category-name" id="category-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="category-description" class="form-control-label">Description:</label>
+                        <textarea class="form-control" name="category-description" id="category-description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="add-category-confirm" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    
+    <script type="text/javascript">
+        $.fn.select2.defaults.set("theme", "bootstrap");
+        $(function () {
+            page_init();
+            // ingredient dialog
+            $("#add-ingredient").click(function (e) {
+                e.preventDefault();
+                $("#add-ingredient-dialog").modal();
+                
+            });
+
+            $("#add-ingredient-confirm").click(function (e) {
+                var ing = {};
+                ing.name = $("#ingredient-name").val();
+                ing.description = $("#ingredient-description").val();
+                $.ajax({
+                    url: "/ingredient",
+                    type: "POST",
+                    data: ing,
+                    success: function (data) {
+                        $("#select-ingredients-must, #select-ingredients-optional").append(new Option(data.name, data.id, false, false)).trigger('change');
+                        $("#add-ingredient-dialog").modal('hide');
+                      //  good('המוצר נוסף למערכת');
+                    },
+                    error: function (response) {
+                      //  bad(response.responseJSON.message);
+                    }
+                });
+            });
+            //category dialog
+            $("#add-category").click(function (e) {
+                e.preventDefault();
+                $("#add-category-dialog").modal();
+            });
+            $("#add-category-confirm").click(function (e) {
+                var category = {};
+                category.name = $("#category-name").val();
+                category.description = $("#category-description").val();
+                $.ajax({
+                    url: "/category",
+                    type: "POST",
+                    data: category,
+                    success: function (data) {
+                        $("#select-categories").append(new Option(data.name, data.id, false, false)).trigger('change');
+                        $("#add-category-dialog").modal('hide');
+                       // good('המוצר נוסף למערכת')
+                    },
+                    error: function (response) {
+                       // bad(response.responseJSON.message);
+                    }
+                });
+            });
+            //save recipe //later
+            $("#button_save_recipe").click(function (e) {
+                e.preventDefault();
+                var rec = {};
+                rec.name = $("#input_text_RecipeName").val();
+                rec.description = $("#textarea-Description").val();
+                rec.mustHaveIngredients = $("#select-ingredients-must").val();
+                rec.optionalIngredients = $("#select-ingredients-optional").val();
+                rec.timeToMake = $("#time_to_make").val();
+                rec.categories = $("#select-categories").val();
+                var imgUrl = $("#input_img_url").val();
+                rec.ImageUrl = imgUrl;
+                if (imgUrl == "") {
+                    rec.ImageUrl = "http://saveabandonedbabies.org/wp-content/uploads/2015/08/default.png";
+                }
+                
+                $.ajax({
+                    url: "/recipes",
+                    type: "POST",
+                    data: rec,
+                    success: function (data) {
+                        console.log(data);
+                        location.href = "/Recipe/Info?id=" + data.id;  
+                    },
+                    error: function (response) {
+                        //bad(response.responseJSON.message);
+                    }
+                })
+            });
+        });
+
+
+
+
+        function good(msg) {
+            $.notify({
+                title: '<strong>הצלחה</strong><br/>',
+                message: msg
+            }, { type: 'success' });
+        }
+        function bad(msg) {
+            $.notify({
+                title: '<strong>שגיאה</strong><br/>',
+                message: msg
+            }, {
+                    type: 'success',
+                    z_index: 1051
+                });
+        }
+        function page_init() {
+            //load categories
+            $.ajax({
+                url: "/category",
+                type: 'GET',
+                success: function (data) {
+                    var selectdata = [];
+                    $.each(data, function (index, value) {
+                        selectdata.push({ id: value.id, text: value.name });
+                    });
+                    $("#select-categories").select2(
+                        {
+                            data: selectdata,
+                            placeholder: 'select category'
+                        });
+
+                },
+                error: function (a, b, c) {
+                    console.log(a);
+                }
+            });
+            $.ajax({
+                url: "/ingredient",
+                type: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    var selectdata = [];
+                    $.each(data, function (index, value) {
+                        selectdata.push({ id: value.id, text: value.name });
+                    });
+                    
+                    $("#select-ingredients-must, #select-ingredients-optional").select2({
+                        data: selectdata,
+                        placeholder:'select ingrediant'
+                    })
+
+                },
+                error: function (a, b, c) {
+                    console.log(a);
+                }
+            });
+
+        }
+
+</script>
+}
